@@ -1,40 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Untitled</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
-
 <html>
-
 <head>
+  <title>AI Chart Analyzer</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding: 20px;
+    }
 
-<meta charset="UTF-8">
+    .box {
+      background: gold;
+      padding: 20px;
+      border-radius: 20px;
+      margin: 20px auto;
+      max-width: 500px;
+    }
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    button {
+      background: orange;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-<title>AlphaVision AI</title>
-
-<link rel="stylesheet" href="style.css">
-
+    #result {
+      white-space: pre-wrap;
+      margin-top: 15px;
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>📊 Fiqhtrade analisis pemula </h1>
+<h1>📊 AI Chart Analyzer</h1>
 
 <div class="box">
+  <input type="file" id="imageInput" accept="image/*">
+  <br><br>
+  <button onclick="analyzeChart()">Analisa Chart</button>
+</div>
 
-<input type="file" id="upload" accept="image/*">
+<div class="box">
+  <h2>Hasil</h2>
+  <div id="result">Upload chart dulu...</div>
+</div>
 
-<button onclick="analyze()">Analisa Chart</button>
+<script>
+async function analyzeChart() {
+  const fileInput = document.getElementById("imageInput");
+  const resultDiv = document.getElementById("result");
 
+  if (!fileInput.files[0]) {
+    resultDiv.innerText = "⚠️ Pilih gambar dulu!";
+    return;
+  }
+
+  resultDiv.innerText = "⏳ Menganalisa...";
+
+  const reader = new FileReader();
+
+  reader.onload = async function() {
+    const base64Image = reader.result.split(",")[1];
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ image: base64Image })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        resultDiv.innerText = "❌ Error: " + data.error;
+      } else {
+        resultDiv.innerText = data.result;
+      }
+
+    } catch (error) {
+      resultDiv.innerText = "❌ Server error";
+    }
+  };
+
+  reader.readAsDataURL(fileInput.files[0]);
+}
+</script>
+
+</body>
+</html>
 </div>
 
 <div class="box">
